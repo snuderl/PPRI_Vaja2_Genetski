@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PPRI_Vaja2_Genetski", "PPRI_Vaja2_Genetski\PPRI_Vaja2_Genetski.csproj", "{903B83FD-4D11-4AB1-BF12-568AC4FC40C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inteligenca rojev", "Inteligenca rojev\Inteligenca rojev.csproj", "{CC8AE340-3718-4859-A556-096BE08F3DC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "WindowsFormsControlLibrary1\Common.csproj", "{8A450CF9-8BB3-4FFA-8464-31842FF3E224}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,14 @@ Global
 		{903B83FD-4D11-4AB1-BF12-568AC4FC40C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{903B83FD-4D11-4AB1-BF12-568AC4FC40C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{903B83FD-4D11-4AB1-BF12-568AC4FC40C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC8AE340-3718-4859-A556-096BE08F3DC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC8AE340-3718-4859-A556-096BE08F3DC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC8AE340-3718-4859-A556-096BE08F3DC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC8AE340-3718-4859-A556-096BE08F3DC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A450CF9-8BB3-4FFA-8464-31842FF3E224}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A450CF9-8BB3-4FFA-8464-31842FF3E224}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A450CF9-8BB3-4FFA-8464-31842FF3E224}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A450CF9-8BB3-4FFA-8464-31842FF3E224}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
