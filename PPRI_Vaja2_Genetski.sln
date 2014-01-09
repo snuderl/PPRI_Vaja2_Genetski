@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inteligenca rojev", "Inteli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "WindowsFormsControlLibrary1\Common.csproj", "{8A450CF9-8BB3-4FFA-8464-31842FF3E224}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KolonijaMravelj", "KolonijaMravelj\KolonijaMravelj.csproj", "{85AC6598-B1FE-45B8-85D8-5EEB44F321AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{8A450CF9-8BB3-4FFA-8464-31842FF3E224}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A450CF9-8BB3-4FFA-8464-31842FF3E224}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A450CF9-8BB3-4FFA-8464-31842FF3E224}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85AC6598-B1FE-45B8-85D8-5EEB44F321AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85AC6598-B1FE-45B8-85D8-5EEB44F321AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85AC6598-B1FE-45B8-85D8-5EEB44F321AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85AC6598-B1FE-45B8-85D8-5EEB44F321AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

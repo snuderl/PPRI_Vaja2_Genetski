@@ -15,6 +15,7 @@ namespace WindowsFormsControlLibrary1
     {
         public Stavba stavba;
         public int Rows { get; set; }
+        List<Tuple<int, int, double>> extra = null;
         public UserControl1()
         {
             InitializeComponent();
@@ -62,6 +63,12 @@ namespace WindowsFormsControlLibrary1
 
         }
 
+        public void SetExtra(List<Tuple<int, int, double>> x)
+        {
+            extra = x;
+            pictureBox1.Invalidate();
+        }
+
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
             using (Pen blackpen = new Pen(Color.Black, 3))
@@ -105,6 +112,24 @@ namespace WindowsFormsControlLibrary1
                         }
                     }
                 }
+
+                if (extra != null)
+                {
+                    Brush pokrito = new SolidBrush(Color.Black);
+
+                    foreach (var tuple in extra)
+                    {
+                        g.FillRectangle(new SolidBrush(Color.Beige), new RectangleF(tuple.Item2 * rowStep, tuple.Item1 * colStep, rowStep, colStep));
+                        //if (rows >= 20 || cols >= 20)
+                        //{
+                        //    g.DrawString(tuple.Item3.ToString(), font, fontBrush, new PointF(tuple.Item2 * rowStep, tuple.Item1 * colStep));
+                        //}
+                        //else
+                        //{
+                        //    g.DrawString(tuple.Item3.ToString(), font, fontBrush, new PointF(tuple.Item2 * rowStep + rowStep / 2, tuple.Item1 * colStep + colStep / 2));
+                        //}
+                    }
+                }
             }
         }
 
@@ -127,7 +152,7 @@ namespace WindowsFormsControlLibrary1
             var row = (int)Math.Floor(e.Y / colStep);
 
 
-            if(stavba.lokacija[row][col] != (Lokacija.Izhod | Lokacija.Vhod)){
+            if(stavba.lokacija[row][col] != (Lokacija.Izhod)){
                 stavba.lokacija[row][col] = stavba.lokacija[row][col] == Lokacija.Zid ? Lokacija.Prosto : Lokacija.Zid;
             }
             pictureBox1.Invalidate();
@@ -157,6 +182,7 @@ namespace WindowsFormsControlLibrary1
                         else if (line[y] == 'E')
                         {
                             val = Lokacija.Izhod;
+                            map.exits.Add(new Tuple<int, int>(i, y));
                         }
                         map.lokacija[i][y] = val;
                     }

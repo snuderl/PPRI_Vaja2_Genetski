@@ -22,12 +22,18 @@ namespace Inteligenca_rojev
         {
             //Console.WriteLine(Fitness.KvadratnaMetodaDDA(1, 5, 2, 10, userControl11.stavba));
 
-            PSO pso = new PSO(100, userControl11.stavba, 10);
-            pso.Run(50);
+            PSO pso = new PSO(40, userControl11.stavba, 2);
+            pso.Run(200);
 
+            Particle best = pso.particles.Where(x => x.score == pso.particles.Max(z => z.score)).FirstOrDefault();
+            userControl11.SetExtra(best.state.Select(x => new Tuple<int, int, double>(x.X, x.Y, x.power)).ToList());
 
-            Console.WriteLine("Done");
+            if (best.score > 50)
+            {
+                Console.WriteLine("Done " + best.score + " ," + best.state.Max(x => x.power));
+                Console.WriteLine(pso.scores.Max(x => x.Item1));
 
+            }
         }
 
 

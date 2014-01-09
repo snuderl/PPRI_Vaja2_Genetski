@@ -16,7 +16,6 @@ namespace WindowsFormsControlLibrary1
     {
         Prosto = 1,
         Zid = 2,
-        Vhod = 4,
-        Izhod = 8
+        Izhod = 4
     }
 }
