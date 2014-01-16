@@ -16,7 +16,7 @@ namespace WindowsFormsControlLibrary1
         public int Rows;
         public int Cols;
         public Lokacija[][] lokacija;
-        public List<Tuple<int, int>> exits;
+        public List<Point> exits;
         public Stavba(int rows, int cols)
         {
             Rows = rows;
@@ -30,7 +30,7 @@ namespace WindowsFormsControlLibrary1
                     this.lokacija[i][y] = Lokacija.Prosto;
                 }
             } 
-            exits = new List<Tuple<int, int>>();
+            exits = new List<Point>();
         }
     }
 }

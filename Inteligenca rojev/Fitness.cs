@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace Inteligenca_rojev
             neighbourhoudBest = state;
         }
 
-        public void Update(double c1, double c2, double[] r1, double[] r2)
+        public void Update(double c1, double c2, double[] r1, double[] r2, Stavba s)
         {
             double[] s1 = new double[r1.Length];
             double[] s2 = new double[r1.Length];
@@ -41,145 +42,24 @@ namespace Inteligenca_rojev
                 var f1 = c1 * r1[i] * (best[i] - state[i]);
                 var f2 = c2 * r2[i] * (neigh[i] - state[i]);
                 velocity[i] += f1 + f2;
-                state[i] += velocity[i];
+            }
+            for (var i = 0; i < r1.Length; i += 3)
+            {
+                var x = Convert.ToInt32(state[i] + velocity[i]);
+                var y = Convert.ToInt32(state[i + 1] + velocity[i + 1]);
+                state[i + 2] += velocity[i + 2];
+                if (x >= 0 && y >= 0 && x < s.Rows && y < s.Cols && s.lokacija[x][y] == Lokacija.Prosto)
+                {
+                    state[i] += velocity[i];
+                    state[i + 1] += velocity[i + 1];
+                }
             }
 
             this.state = Oddajnik.FromVector(state);
         }
     }
 
-    public class PSO
-    {
 
-
-        
-
-        int numParticles;
-        short[][] topology;
-        Stavba stavba;
-        public Particle[] particles;
-        public List<Tuple<double, double, double>> scores = new List<Tuple<double, double, double>>();
-        public double c1 = 0.5, c2 = 0.7;
-        public double MaxPower = 15;
-        public double[] r1, r2;
-        public Random rand = new Random();
-
-        public PSO(int count, Stavba stavba, int NumOddajnikov)
-        {
-            this.stavba = stavba;
-            numParticles = count;
-
-
-            topology = new short[numParticles][];
-            particles = new Particle[numParticles];
-            for (var i = 0; i < numParticles; i++)
-            {
-                topology[i] = Enumerable.Range(0, numParticles).Select(x => (short)1).ToArray();
-                particles[i] = new Particle(generateRandomData(stavba, NumOddajnikov));
-            }
-
-            r1 = new double[NumOddajnikov * 3];
-            r2 = new double[NumOddajnikov * 3];
-            for(var i = 0; i < r1.Length; i++){
-                r1[i] = rand.NextDouble();
-                r2[i] = rand.NextDouble();
-            }
-        }
-
-        public static double Clamp(double val, double min, double max)
-        {
-            return Math.Max(min, Math.Min(max, val)); 
-        }
-
-        public void Run(int iterations)
-        {
-            int iteration = 0;
-            while (iteration < iterations)
-            {
-                
-                for (var i = 0; i < particles.Length; i++)
-                {
-                    var particle = particles[i];
-                    var score = Fitness.CalculateFitness(stavba, particle.state);
-                    particle.score = score;
-                    if (score > particle.bestScore)
-                    {
-                        particle.bestScore = score;
-                        particle.best = particle.state.ToList().ToArray();
-                    }
-                }
-
-                for (var i = 0; i < particles.Length; i++)
-                {
-                    var neighboursInd = topology[i];
-                    var particle = particles[i];
-                    var neighbours = neighboursInd.Select((x, y) => x == 0 ? null : particles[y]).Where(x => x != null).ToList();
-                    var networkBest = neighbours.Max(x => x.score);
-                    particle.neighbourhoudScore = networkBest;
-                    particle.neighbourhoudBest = neighbours.Where(x => x.score == networkBest).FirstOrDefault().state.ToList().ToArray();
-                    particle.Update(c1, c2, r1, r2);
-                    for (var z = 0; z < particle.state.Length; z++)
-                    {
-                        var p = particle.state[z];
-                        p.power = Clamp(p.power, 0, MaxPower);
-                        p.x = Clamp(p.x, 0, stavba.Rows - 1);
-                        p.y = Clamp(p.y, 0, stavba.Cols - 1);
-                        
-                    }
-
-                }
-
-                var s = particles.Select(x => x.score).ToList();
-                var best = s.Max();
-                var average = s.Sum() / s.Count;
-                var min = s.Min();
-                scores.Add(new Tuple<double, double, double>(best, average, min));
-
-                iteration++;
-                if (HasConverged())
-                {
-                    Console.WriteLine("Converged");
-                    //break;
-                }
-            }
-        }
-
-        public bool HasConverged()
-        {
-            if (scores.Count < 10)
-            {
-                return false;
-            }
-            else
-            {
-                int N = 10;
-                var lastN = scores.Skip(scores.Count - (N + 1));
-                var last = lastN.Last();
-                return lastN.All(x => x.Item1 >= last.Item1);
-            }            
-        }
-
-        public List<Oddajnik> generateRandomData(Stavba s, int count, double maxPower = 10)
-        {
-            HashSet<Tuple<int, int>> hash = new HashSet<Tuple<int, int>>();
-            var oddajniki = new List<Oddajnik>();
-
-
-            while (hash.Count < count)
-            {
-                int x = rand.Next(s.Rows);
-                int y = rand.Next(s.Cols);
-                var tuple = new Tuple<int, int>(x, y);
-                if (s.lokacija[x][y] == Lokacija.Prosto && !hash.Contains(tuple))
-                {
-                    double power = rand.NextDouble() * maxPower + 1;
-                    oddajniki.Add(new Oddajnik(x, y, power));
-                    hash.Add(tuple);
-                }
-            }
-            return oddajniki;
-        }
-    }
 
 
     public class Oddajnik
@@ -215,7 +95,7 @@ namespace Inteligenca_rojev
             var s = new Oddajnik[vector.Length / 3];
             for (var i = 0; i < vector.Length; i+=3)
             {
-                var o = new Oddajnik(vector[i / 3], vector[i / 3 + 1], vector[i / 3 + 2]);
+                var o = new Oddajnik(vector[i], vector[i + 1], vector[i + 2]);
                 s[i / 3] = o;
             }
             return s;
@@ -242,40 +122,70 @@ namespace Inteligenca_rojev
         public static double CalculateFitness(Stavba stavba, Oddajnik[] oddajniki)
         {
             var powerMap = generatePowerMap(stavba);
-            CalculatePower(stavba, oddajniki, powerMap);
+            var outside = CalculatePower(stavba, oddajniki, powerMap);
 
-            var fitness = powerMap.SelectMany(x => x).Sum() - strosek * oddajniki.Length;
+            var fitness = powerMap.SelectMany(x => x).Sum() - strosek * oddajniki.Where(x => x.power > 0.00001).Count() - outside;
             return fitness;
         }
 
-        public static void CalculatePower(Stavba stavba, Oddajnik[] oddajniki, double[][] powerMap)
+        public static double CalculatePower(Stavba stavba, Oddajnik[] oddajniki, double[][] powerMap)
         {
+            Dictionary<Point, List<double>> outside = new Dictionary<Point, List<double>>();
+
             List<double>[][] listPowerMap = new List<double>[stavba.Rows][];
             for (var i = 0; i < stavba.Rows; i++)
             {
-                var row = Enumerable.Range(0, stavba.Cols).Select(x => new List<double>()).ToArray();
+                var row = new List<double>[stavba.Cols];
+                for (var y = 0; y < stavba.Cols; y++)
+                {
+                    row[y] = new List<double>();
+                }
                 listPowerMap[i] = row;
+
             }
 
             foreach (var p in oddajniki)
             {
-                if (stavba.lokacija[p.X][p.Y] == Lokacija.Prosto)
+                if (p.power > 0 && stavba.lokacija[p.X][p.Y] == Lokacija.Prosto)
                 {
-                    double range = C * Math.Sqrt(p.power);
+                    var sqrtPower = Math.Sqrt(p.power);
+                    double range = C * sqrtPower;
 
                     var d = (int)(range + 0.5);
 
-                    for (var x = Math.Max(0, p.X - d); x < Math.Min(stavba.Rows, p.X + d); x++)
+
+                    for (var x = p.X - d; x < p.X + d; x++)
                     {
-                        for (var y = Math.Max(0, p.Y - d); y < Math.Min(stavba.Cols, p.Y + d); y++)
+                        for (var y = p.Y - d; y < p.Y + d; y++)
                         {
-                            double distance = Distance(x + 0.5, y + 0.5, p.x + 0.5, p.y + 0.5);
-                            if (distance < range)
+                            if(x < 0 || y < 0 || x >= stavba.Rows || y >= stavba.Cols){
+                                double distance = Math.Sqrt(Math.Pow(x - p.x, 2) + Math.Pow(y - p.y, 2));
+                                if (distance < range)
+                                {
+                                    var count = CalculateWallCount(stavba, p, x, y);
+                                    var neoslabljen = p.power * (1 - distance / (C * sqrtPower));
+                                    var oslabljen = Math.Pow(q, count) * neoslabljen;
+                                    var t = new Point(x, y);
+                                    if (!outside.ContainsKey(t))
+                                    {
+                                        outside[t] = new List<double> { oslabljen };
+                                    }
+                                    else
+                                    {
+                                        outside[t].Add(oslabljen);
+                                    }
+                                }
+                            }
+                            else if (stavba.lokacija[x][y] == Lokacija.Prosto)
                             {
-                                var count = CalculateWallCount(stavba, p, x, y);
-                                var neoslabljen = p.power * (1 - distance / (C * Math.Sqrt(p.power)));
-                                var oslabljen = Math.Pow(q, count) * neoslabljen;
-                                listPowerMap[x][y].Add(oslabljen);
+                                double distance = Distance(x + 0.5, y + 0.5, p.x + 0.5, p.y + 0.5);
+                                if (distance < range)
+                                {
+                                    var count = CalculateWallCount(stavba, p, x, y);
+                                    var neoslabljen = p.power * (1 - distance / range);
+                                    var oslabljen = Math.Pow(q, count) * neoslabljen;
+                                    listPowerMap[x][y].Add(oslabljen);
+                                }
                             }
                         }
                     }
@@ -297,6 +207,19 @@ namespace Inteligenca_rojev
                     }
                 }
             }
+
+            double outsidePower = 0;
+            foreach(var kv in outside){
+                if (kv.Value.Count == 1)
+                {
+                    outsidePower += kv.Value[0];
+                }
+                else if (kv.Value.Count > 1)
+                {
+                    outsidePower += Math.Max(0, 2 * kv.Value.Max() - kv.Value.Sum());
+                }
+            }
+            return outsidePower;
         }
 
         public static bool isInBoundary(Oddajnik p, Stavba s)
@@ -348,9 +271,8 @@ namespace Inteligenca_rojev
 
                 for (; ; )
                 {
-                    if(x1 >= 0 && x1 < stavba.Rows && y1 >= 0 && y1 < stavba.Cols)
-                        count += stavba.lokacija[x1][y1] == Lokacija.Zid ? 1 : 0;
-                    //Console.WriteLine(x1 + "," + y1);
+                    if (x1 >= 0 && x1 < stavba.Rows && y1 >= 0 && y1 < stavba.Cols && stavba.lokacija[x1][y1] == Lokacija.Zid)
+                        count ++;
 
                     if (x1 == x2 && y1 == y2) break;
 

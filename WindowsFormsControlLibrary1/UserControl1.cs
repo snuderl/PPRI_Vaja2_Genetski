@@ -15,14 +15,29 @@ namespace WindowsFormsControlLibrary1
     {
         public Stavba stavba;
         public int Rows { get; set; }
-        List<Tuple<int, int, double>> extra = null;
+        public List<Tuple<int, int, double>> extra = null;
+        public double[][] powerMap = null;
+        public List<Point> path = null;
+
+        public void SetPath(List<Point> path)
+        {
+            this.path = path;
+            pictureBox1.Invalidate();
+        }
+
+        public void SetPowerMap(double[][] m)
+        {
+            this.powerMap = m;
+            pictureBox1.Invalidate();
+        }
+
         public UserControl1()
         {
             InitializeComponent();
-            stavba = GenerateRandomMap(50);
+            stavba = GenerateRandomMap(10);
         }
 
-        public static Stavba GenerateRandomMap(int size, double percentBlocked = 0.2)
+        public static Stavba GenerateRandomMap(int size, double percentBlocked = 0)
         {
             var rnd = new Random();
             var stavba = new Stavba(size, size);
@@ -50,7 +65,7 @@ namespace WindowsFormsControlLibrary1
             if (int.TryParse(textBox1.Text, out size))
             {
 
-                double percentBlocked = 0.2;
+                double percentBlocked = 0;
                 double.TryParse(textBox2.Text, out percentBlocked);
                 percentBlocked = Math.Abs(percentBlocked);
                 percentBlocked = Math.Min(percentBlocked, 0.8);
@@ -113,13 +128,36 @@ namespace WindowsFormsControlLibrary1
                     }
                 }
 
+
+
+                if (powerMap != null && powerMap.Length == stavba.Rows && powerMap[0].Length == stavba.Cols)
+                {
+                    var offset = 2;
+                    var max = Math.Sqrt(powerMap.SelectMany(x => x).Max());
+                    for (var i = 0; i < rows; i++)
+                    {
+                        for (var y = 0; y < cols; y++)
+                        {
+                            var val = powerMap[i][y];
+                            if (val > 0.00001)
+                            {
+                                //Console.WriteLine(val);
+                                var b = new SolidBrush(Color.FromArgb(255, (int)(255 - Math.Sqrt(val) / max * 200), 255));
+                                g.FillRectangle(b, new RectangleF(y * rowStep + offset, i * colStep + offset, rowStep - 2 * offset, colStep - 2 * offset));
+                            }
+
+                        }
+                    }
+                }
+
                 if (extra != null)
                 {
                     Brush pokrito = new SolidBrush(Color.Black);
 
                     foreach (var tuple in extra)
                     {
-                        g.FillRectangle(new SolidBrush(Color.Beige), new RectangleF(tuple.Item2 * rowStep, tuple.Item1 * colStep, rowStep, colStep));
+                        var offset = 4;
+                        g.FillRectangle(new SolidBrush(Color.Beige), new RectangleF(tuple.Item2 * rowStep + offset, tuple.Item1 * colStep + offset , rowStep - 2 * offset, colStep - 2 * offset));
                         //if (rows >= 20 || cols >= 20)
                         //{
                         //    g.DrawString(tuple.Item3.ToString(), font, fontBrush, new PointF(tuple.Item2 * rowStep, tuple.Item1 * colStep));
@@ -128,6 +166,16 @@ namespace WindowsFormsControlLibrary1
                         //{
                         //    g.DrawString(tuple.Item3.ToString(), font, fontBrush, new PointF(tuple.Item2 * rowStep + rowStep / 2, tuple.Item1 * colStep + colStep / 2));
                         //}
+                    }
+                }
+
+                if (path != null)
+                {
+                    var offset = 3;
+                    foreach (var tuple in path)
+                    {
+                        g.FillRectangle(new SolidBrush(Color.Black), new RectangleF(tuple.Y * rowStep + offset, tuple.X * colStep + offset, rowStep - 2 * offset, colStep - 2 * offset));
+
                     }
                 }
             }
@@ -182,7 +230,7 @@ namespace WindowsFormsControlLibrary1
                         else if (line[y] == 'E')
                         {
                             val = Lokacija.Izhod;
-                            map.exits.Add(new Tuple<int, int>(i, y));
+                            map.exits.Add(new Point(i, y));
                         }
                         map.lokacija[i][y] = val;
                     }
